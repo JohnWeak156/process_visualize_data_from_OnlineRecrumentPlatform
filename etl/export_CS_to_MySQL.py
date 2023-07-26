@@ -1,8 +1,7 @@
-# Import các thư viện
+# Import library
 import findspark
 findspark.init()
 
-import pyspark
 import pyspark.sql as pyspark_sql
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
@@ -16,17 +15,17 @@ from datetime import datetime
 
 from cassandra_mysql_info import MY_HOST, MY_PORT, MY_DBNAME, MY_URL, MY_DRIVER, MY_USER, MY_PASSWORD, CAS_TABLE, CAS_KEYSPACE 
 
-# Tạo và cài đặt Spark
+# Create Spark environment
 from pyspark.sql import SparkSession
 
-#--- Kết nối tới Cassandra để lấy bảng tracking---
+#--- Connect to CassandraDB, table `tracking`---
 data = spark.read.format("org.apache.spark.sql.cassandra")\
     .options(table=CAS_TABLE, keyspace=CAS_KEYSPACE)\
     .load()\
     .select('create_time', col('job_id').cast(IntegerType()).cast(StringType()), 'custom_track','bid','campaign_id'\
             ,col('group_id').cast(IntegerType()).cast(StringType()), 'publisher_id', 'ts')
 
-# Dùng create_time (Chuyển từ dạng uuid time -> timestamp)
+# Define a function coverting uuid time -> timestamp
 def uuid2ts(uuid_str):
     my_uuid = uuid.UUID(uuid_str)
     ts_long = time_uuid.TimeUUID(bytes=my_uuid.bytes).get_timestamp()
@@ -40,8 +39,8 @@ def process_df(df):
     .select('create_time', 'ts', 'job_id','custom_track','bid','campaign_id','group_id','publisher_id')
     return df_processed
     
-## Tính toán các bảng output
-## Bảng `click`
+## From table `output``
+## Calculate table `click`
 def calculating_clicks(df):
     clicks_data = df.filter(df.custom_track == 'click')
     clicks_data = clicks_data.na.fill({'bid':0})
@@ -54,7 +53,7 @@ def calculating_clicks(df):
     group by job_id , date(ts) , hour(ts) , publisher_id , campaign_id , group_id """)
     return clicks_output 
 
-## Bảng `coversion`
+## Calculate table `coversion`
 def calculating_conversion(df):
     conversion_data = df.filter(df.custom_track == 'conversion')
     conversion_data = conversion_data.na.fill({'job_id':0})
@@ -66,7 +65,7 @@ def calculating_conversion(df):
     group by job_id , date(ts) , hour(ts) , publisher_id , campaign_id , group_id """)
     return conversion_output 
 
-## Bảng `qualifed`
+## Calculate table `qualifed`
 def calculating_qualified(df):    
     qualified_data = df.filter(df.custom_track == 'qualified')
     qualified_data = qualified_data.na.fill({'job_id':0})
@@ -78,7 +77,7 @@ def calculating_qualified(df):
     group by job_id , date(ts) , hour(ts) , publisher_id , campaign_id , group_id """)
     return qualified_output
 
-## Bảng `ununqualified`
+## Calculate table `ununqualified`
 def calculating_unqualified(df):
     unqualified_data = df.filter(df.custom_track == 'unqualified')
     unqualified_data = unqualified_data.na.fill({'job_id':0})
@@ -90,7 +89,7 @@ def calculating_unqualified(df):
     group by job_id , date(ts) , hour(ts) , publisher_id , campaign_id , group_id """)
     return unqualified_output
 
-# Join các bảng trên để ra kết quả
+# Join mutiple table above
 def process_final_data(clicks_output,conversion_output,qualified_output,unqualified_output):
     keys = ['job_id','date','hour','publisher_id','campaign_id','group_id']
     final_data = clicks_output\
@@ -107,7 +106,7 @@ def process_cassandra_data(df):
     final_data = process_final_data(clicks_output,conversion_output,qualified_output,unqualified_output)
     return final_data
 
-# Lấy data từ bảng `company`
+# Get data from table `company` (to get job_id)
 def retrieve_company_data():
     sql = """(SELECT id as job_id, company_id, group_id, campaign_id FROM job) test"""
     company = spark.read.format('jdbc').options(url=MY_URL, driver=MY_DRIVER, dbtable=sql, user=MY_USER, password=MY_PASSWORD).load()
@@ -124,7 +123,7 @@ def import_to_mysql(output, db_table):
         .withColumnRenamed('conversions','conversion')\
         .withColumn('sources', lit('Cassandra'))
     
-    # Import vào db
+    # Import to MySQL db
     final_output.write.format('jdbc')\
     .option('url', MY_URL)\
     .option('driver', MY_DRIVER)\
@@ -133,6 +132,17 @@ def import_to_mysql(output, db_table):
     .option('password', MY_PASSWORD)\
     .mode('append').save()
     return print('Data imported successfully')
+
+# Get latest time from table `events` in MySQL db
+def get_mysql_latest_time():    
+    sql = """(select max(latest_update_time) from events) data"""
+    mysql_time = spark.read.format('jdbc').options(url=url, driver=driver, dbtable=sql, user=user, password=password).load()
+    mysql_time = mysql_time.take(1)[0][0]
+    if mysql_time is None:
+        mysql_latest = '1998-01-01 23:59:59'
+    else :
+        mysql_latest = mysql_time.strftime('%Y-%m-%d %H:%M:%S')
+    return mysql_latest 
 
 # Main task
 def main_task():
@@ -146,17 +156,13 @@ def main_task():
     .options(table=CAS_TABLE, keyspace=CAS_KEYSPACE)\
     .load()\
     .select('create_time', col('job_id').cast(IntegerType()).cast(StringType()), 'custom_track','bid','campaign_id'\
-            ,col('group_id').cast(IntegerType()).cast(StringType()), 'publisher_id', 'ts')
+            ,col('group_id').cast(IntegerType()).cast(StringType()), 'publisher_id', 'ts')\
+    ..where(col('ts')>= mysql_time)
     data.printSchema()
     print('-----------------------------')
     print('Processing data from Cassandra')
     print('-----------------------------')
     df = process_df(data)
-    print('-----------------------------')
-    print('Getting and check newest data')
-    print('-----------------------------')
-    df = df\
-        #.where(col('ts')>= mysql_time)
     print('-----------------------------')
     print('Processing Cassandra Output')
     print('-----------------------------')
@@ -187,3 +193,4 @@ if __name__ == "__main__":
     .getOrCreate()
 
     main()
+    spark.stop()
