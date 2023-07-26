@@ -20,6 +20,7 @@ from kafka_mysql_info import MY_HOST, MY_PORT, MY_DBNAME, MY_URL, MY_DRIVER, MY_
 producer = KafkaProducer(bootstrap_servers=f'{K_HOST}:{K_PORT}',
                     value_serializer=lambda x: json.dumps(x).encode('utf-8'))
 
+# Get example publisher_id
 def get_data_from_publisher(MY_USER,MY_PASSWORD,MY_HOST,MY_DBNAME):
     cnx = mysql.connector.connect(user=MY_USER, password=MY_PASSWORD,
                                          host=MY_HOST,
@@ -28,11 +29,12 @@ def get_data_from_publisher(MY_USER,MY_PASSWORD,MY_HOST,MY_DBNAME):
     mysql_data = pd.read_sql(query,cnx)
     return mysql_data
 
+# Get example job_id, campaign_id, group_id, company_id
 def get_data_from_job(MY_USER,MY_PASSWORD,MY_HOST,MY_DBNAME):
     cnx = mysql.connector.connect(user=MY_USER, password=MY_PASSWORD,
                                          host=MY_HOST,
                                       database=MY_DBNAME)
-    query = """select id as job_id,campaign_id , group_id , company_id from job"""
+    query = """select id as job_id, campaign_id , group_id , company_id from job"""
     mysql_data = pd.read_sql(query,cnx)
     return mysql_data
 
