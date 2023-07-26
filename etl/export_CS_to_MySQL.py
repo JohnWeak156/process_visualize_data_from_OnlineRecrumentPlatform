@@ -18,13 +18,6 @@ from cassandra_mysql_info import MY_HOST, MY_PORT, MY_DBNAME, MY_URL, MY_DRIVER,
 # Create Spark environment
 from pyspark.sql import SparkSession
 
-#--- Connect to CassandraDB, table `tracking`---
-data = spark.read.format("org.apache.spark.sql.cassandra")\
-    .options(table=CAS_TABLE, keyspace=CAS_KEYSPACE)\
-    .load()\
-    .select('create_time', col('job_id').cast(IntegerType()).cast(StringType()), 'custom_track','bid','campaign_id'\
-            ,col('group_id').cast(IntegerType()).cast(StringType()), 'publisher_id', 'ts')
-
 # Define a function coverting uuid time -> timestamp
 def uuid2ts(uuid_str):
     my_uuid = uuid.UUID(uuid_str)
@@ -136,7 +129,7 @@ def import_to_mysql(output, db_table):
 # Get latest time from table `events` in MySQL db
 def get_mysql_latest_time():    
     sql = """(select max(latest_update_time) from events) data"""
-    mysql_time = spark.read.format('jdbc').options(url=url, driver=driver, dbtable=sql, user=user, password=password).load()
+    mysql_time = spark.read.format('jdbc').options(url=MY_URL, driver=MY_DRIVER, dbtable=sql, user=MY_USER, password=MY_PASSWORD).load()
     mysql_time = mysql_time.take(1)[0][0]
     if mysql_time is None:
         mysql_latest = '1998-01-01 23:59:59'
@@ -145,7 +138,7 @@ def get_mysql_latest_time():
     return mysql_latest 
 
 # Main task
-def main_task():
+def main_task(mysql_time):
     print('The host is ' ,MY_HOST)
     print('The port using is ',MY_PORT)
     print('The db using is ',MY_DBNAME)
@@ -157,7 +150,7 @@ def main_task():
     .load()\
     .select('create_time', col('job_id').cast(IntegerType()).cast(StringType()), 'custom_track','bid','campaign_id'\
             ,col('group_id').cast(IntegerType()).cast(StringType()), 'publisher_id', 'ts')\
-    ..where(col('ts')>= mysql_time)
+    .where(col('ts')>= mysql_time)
     data.printSchema()
     print('-----------------------------')
     print('Processing data from Cassandra')
@@ -187,7 +180,6 @@ def main_task():
 
 if __name__ == "__main__":
     spark = SparkSession.builder\
-    .appName('local')\
     .config("spark.jars", "mysql-connector-java-8.0.30.jar")\
     .config('spark.jars', 'spark-cassandra-connector-assembly_2.12-3.3.0.jar')\
     .getOrCreate()
