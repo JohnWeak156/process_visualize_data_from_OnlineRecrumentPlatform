@@ -13,7 +13,7 @@ def consume_from_kafka(cassandra_keyspace, kafka_topic, kafka_bootstrap_severs):
 
     for message in consumer:
         data = message.value
-        query = f""" INSERT INTO log_tracking (create_time,bid,campaign_id,custom_track,group_id,job_id,publisher_id,ts) VALUES ('{create_time}',{bid},{campaign_id},'{custom_track}',{group_id},{job_id},{publisher_id},'{ts}')"""
+        query = """INSERT INTO log_tracking (create_time,bid,campaign_id,custom_track,group_id,job_id,publisher_id,ts) VALUES ('{}',{},{},'{}',{},{},{},'{}')""".format(data["create_time"], data["bid"], data["campaign_id"], data["custom_track"], data["group_id"], data["job_id"], data["publisher_id"], data["ts"])
         print(query)
         session.execute(query)
         print("Reading data from kafka topic and write to cassandra done !!!")
@@ -29,5 +29,3 @@ if __name__ == "__main__":
     process = multiprocessing.Process(target=consume_from_kafka, args= (cassandra_keyspace, kafka_topic, kafka_bootstrap_severs))
     process.start()
     process.join()
-
-

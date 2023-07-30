@@ -184,5 +184,6 @@ if __name__ == "__main__":
     .config('spark.jars', 'spark-cassandra-connector-assembly_2.12-3.3.0.jar')\
     .getOrCreate()
 
-    main()
+    mysql_time = get_mysql_latest_time()
+    main_task(mysql_time)
     spark.stop()

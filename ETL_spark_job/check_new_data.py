@@ -13,6 +13,9 @@ import uuid
 import time_uuid
 from datetime import datetime
 
+# Create Spark environment
+from pyspark.sql import SparkSession
+
 from cassandra_mysql_info import MY_HOST, MY_PORT, MY_DBNAME, MY_URL, MY_DRIVER, MY_USER, MY_PASSWORD, CAS_TABLE, CAS_KEYSPACE 
 
 # Get latest time from table `log_tracking` in Cassandra db

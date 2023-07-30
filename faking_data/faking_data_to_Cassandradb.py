@@ -19,7 +19,6 @@ import numpy as np
 import mysql.connector
 from kafka_mysql_info import MY_HOST, MY_PORT, MY_DBNAME, MY_URL, MY_DRIVER, MY_USER, MY_PASSWORD 
 
-
 keyspace = 'study_de'
 cassandra_login = 'cassandra'
 cassandra_password = 'cassandra'
@@ -43,10 +42,10 @@ def get_data_from_publisher():
     mysql_data = pd.read_sql(query,cnx)
     return mysql_data
 
-def generating_dummy_data(n_records,session,user,password,host,db_name):
-    publisher = get_data_from_publisher(user,password,host,db_name)
+def generating_dummy_data(n_records,session):
+    publisher = get_data_from_publisher()
     publisher = publisher['publisher_id'].to_list()
-    jobs_data = get_data_from_job(user,password,host,db_name)
+    jobs_data = get_data_from_job()
     job_list = jobs_data['job_id'].to_list()
     campaign_list = jobs_data['campaign_id'].to_list()
     company_list = jobs_data['company_id'].to_list()

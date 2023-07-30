@@ -10,7 +10,7 @@ pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 import mysql.connector
 
-from kafka import KafkaProducer
+from kafka.producer import KafkaProducer
 import json
 
 from kafka_mysql_info import MY_HOST, MY_PORT, MY_DBNAME, MY_URL, MY_DRIVER, MY_USER, MY_PASSWORD, K_HOST, K_PORT, K_TOPIC 
@@ -21,7 +21,7 @@ producer = KafkaProducer(bootstrap_servers=f'{K_HOST}:{K_PORT}',
                     value_serializer=lambda x: json.dumps(x).encode('utf-8'))
 
 # Get example publisher_id
-def get_data_from_publisher(MY_USER,MY_PASSWORD,MY_HOST,MY_DBNAME):
+def get_data_from_publisher():
     cnx = mysql.connector.connect(user=MY_USER, password=MY_PASSWORD,
                                          host=MY_HOST,
                                       database=MY_DBNAME)
@@ -30,7 +30,7 @@ def get_data_from_publisher(MY_USER,MY_PASSWORD,MY_HOST,MY_DBNAME):
     return mysql_data
 
 # Get example job_id, campaign_id, group_id, company_id
-def get_data_from_job(MY_USER,MY_PASSWORD,MY_HOST,MY_DBNAME):
+def get_data_from_job():
     cnx = mysql.connector.connect(user=MY_USER, password=MY_PASSWORD,
                                          host=MY_HOST,
                                       database=MY_DBNAME)
@@ -38,16 +38,16 @@ def get_data_from_job(MY_USER,MY_PASSWORD,MY_HOST,MY_DBNAME):
     mysql_data = pd.read_sql(query,cnx)
     return mysql_data
 
-def generating_dummy_data(n_records, MY_USER, MY_PASSWORD, MY_PORT, MY_DBNAME):
-    publisher = get_data_from_publisher(MY_USER, MY_PASSWORD, MY_PORT, MY_DBNAME)
+def generating_dummy_data(n_records):
+    publisher = get_data_from_publisher()
     publisher = publisher['publisher_id'].to_list()
-    jobs_data = get_data_from_job(MY_USER, MY_PASSWORD, MY_PORT, MY_DBNAME)
+    jobs_data = get_data_from_job()
     job_list = jobs_data['job_id'].to_list()
     campaign_list = jobs_data['campaign_id'].to_list()
     company_list = jobs_data['company_id'].to_list()
     group_list = jobs_data[jobs_data['group_id']!='']['group_id'].astype(int).to_list()
         
-    for i in range(n_records):
+    for _ in range(n_records):
         create_time = str(cassandra.util.uuid_from_time(datetime.datetime.now()))
         bid = random.randint(0,1)
         interact = ['click','conversion','qualified','unqualified']
@@ -63,7 +63,7 @@ def generating_dummy_data(n_records, MY_USER, MY_PASSWORD, MY_PORT, MY_DBNAME):
             , 'job_id':f'{job_id}', 'publisher_id':f'{publisher_id}', 'ts':f'{ts}'}
         print(f'Sending data: {data}')
         producer.send(f'{K_TOPIC}', value=data)
-    print('Importing completed!')
+    print('Data Generated Successfully!')
 
 status = "ON"
 while status == "ON":
