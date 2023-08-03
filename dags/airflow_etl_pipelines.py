@@ -10,11 +10,11 @@ def task3():
     return print("No new data found")
 
 commands_task1 = """
-    cd ./code/github/process_visualize_data_from_OnlineRecrumentPlatform/ETL_spark_job;
+    cd ./etl_spark_job;
     spark-submit check_new_data.py;
     """
 commands_task2 = """
-    cd ./code/github/process_visualize_data_from_OnlineRecrumentPlatform/ETL_spark_job;
+    cd ./etl_spark_job;
     spark-submit export_CS_to_MySQL.py;
     """
 
