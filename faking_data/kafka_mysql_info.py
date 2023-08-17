@@ -11,4 +11,4 @@ MY_PASSWORD = ''
 # Kafka
 K_HOST = '192.168.56.1'
 K_PORT = '9092'
-K_TOPIC = 'log_tracking_k'
+K_TOPIC = 'logtrackingk'

@@ -23,7 +23,7 @@ def consume_from_kafka(cassandra_keyspace, kafka_topic, kafka_bootstrap_severs):
 
 if __name__ == "__main__":
     kafka_bootstrap_severs = "192.168.56.1:9092"
-    kafka_topic = "log_tracking_k"
+    kafka_topic = "logtrackingk"
     cassandra_keyspace = 'study_de'
 
     process = multiprocessing.Process(target=consume_from_kafka, args= (cassandra_keyspace, kafka_topic, kafka_bootstrap_severs))
