@@ -7,6 +7,8 @@ To achieve this, Kafka is used as a messaging queue to transfer the raw data to 
 - keywords: **PySpark**, **Kafka**, **Cassandra**, **MySQL**, **Grafana**, **Python**.
 
 ## Architecture
+<img width="1000" alt="image" src="images/project_data_pipelines.png">
+
 ### Raw Data
 - Log data from the website is processed real-time into Kafka, and from Kafka saved to the Data Lake is Cassandra.
 - Log data schema
@@ -43,6 +45,7 @@ root
  |-- v: integer (nullable = true)
  |-- vp: string (nullable = true)
 ```
+<img width="1000" alt="image" src="https://github.com/VyPhammm/The_system_processes_and_analyzes_log_data_from_the_Online_Recruitment_Platform/assets/127418764/bcdd7917-a9e6-483c-8080-0864054bddc1">
 
 ### Processing Data
 Read and review the data recording user actions in the log data, notice that there are actions with analytical value in the column ```["custom_track"]``` including: ```clicks, conversion, qualified, unqualified```.
