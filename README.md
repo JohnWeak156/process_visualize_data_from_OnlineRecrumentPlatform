@@ -81,6 +81,7 @@ root
 <img width="1000" alt="image" src="images/clean_data_log.png">
 
 ### Visualizing Data with Grafana
+<img width="1000" alt="image" src="images/grafana_dashboard.png">
 
 ## Setup
 ### Pre-requisite
@@ -94,4 +95,5 @@ root
 - Install MySQL
 ## Get Going!
 - Setup Kafka service and start sending log data from website [Setup](setup/kafka.md)
+- Setup Pyspark for data updating [Setup](setup/pyspark.md)
 - Setup Grafana for data visualization [Setup](setup/grafana.md)

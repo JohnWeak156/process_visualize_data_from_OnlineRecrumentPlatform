@@ -1,9 +1,8 @@
 # Setup Grafana
 ## Download Grafana for Window:
-```https://grafana.com/grafana/download```
-## Grafana by Docker
+```https://grafana.com/grafana/download?platform=windows```
 
-```docker run -d --name=grafana -p 3000:3000 grafana/grafana-enterprise```
+## Start Grafana by executing `grafana-server.exe`, located in the `bin` directory 
 
 ## Connection MySQL DB:
 ```
