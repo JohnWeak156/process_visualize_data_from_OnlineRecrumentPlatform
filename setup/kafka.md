@@ -13,9 +13,11 @@
 ```#cd data_recruitment_pipelines```
 ### Send log data to kafka topic through kafka producer
 ``` python kafka/kafka_producer_faking_logdata.py"```
-<img width="352" alt="image" src="images/kafka_producer_faking_logdata.png">
+
+<img width="400" alt="image" src="images/kafka_producer_faking_logdata.png">
 
 
 ### Read data from kafka topic and storage in Data Lake: Cassandra
 ``` python kafka/consume_from_kafka_to_cassandra.py"```
-<img width="352" alt="image" src="images/consumer_from_kafka_to_cassandradb.png">
+
+<img width="400" alt="image" src="images/consumer_from_kafka_to_cassandradb.png">
