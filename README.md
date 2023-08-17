@@ -45,7 +45,7 @@ root
  |-- v: integer (nullable = true)
  |-- vp: string (nullable = true)
 ```
-<img width="1000" alt="image" src="https://github.com/VyPhammm/The_system_processes_and_analyzes_log_data_from_the_Online_Recruitment_Platform/assets/127418764/bcdd7917-a9e6-483c-8080-0864054bddc1">
+<img width="1000" alt="image" src="images/raw_data_log.png">
 
 ### Processing Data
 Read and review the data recording user actions in the log data, notice that there are actions with analytical value in the column ```["custom_track"]``` including: ```clicks, conversion, qualified, unqualified```.
@@ -78,7 +78,7 @@ root
  |-- sources: string (nullable = true)
  |-- latest_update_time: timestamp (nullable = true)
 ```
-<img width="1000" alt="image" src="https://github.com/VyPhammm/The_system_processes_and_analyzes_log_data_from_the_Online_Recruitment_Platform/assets/127418764/bcdd7917-a9e6-483c-8080-0864054bddc1">
+<img width="1000" alt="image" src="images/clean_data_log.png">
 
 ### Visualizing Data with Grafana
 
